@@ -9,11 +9,36 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500'); 
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300,600'); 
 
+:root {
+    --bg-color: #fbfbfb;
+    --code-bg: #f9f9f9;
+    --text-color: rgba(51, 51, 51, 1.00);
+    --second-color: rgba(48,63,159, 1.00);
+    --second-color-faded: rgba(48,63,159, 0.75);
+    --third-color: #999999;
+    --border-quote: #cccccc;
+    --solid: black;
+    --extreme: white;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --code-bg: #f9f9f9;
+    --text-color: #eee;
+    --second-color: rgba(48,63,159, 1.00);
+    --second-color-faded: rgba(48,63,159, 0.75);
+    --third-color: #999999;
+    --border-quote: #cccccc;
+    --solid: white;
+    --extreme: #9999;
+}
+
 body {
     font-family: "Roboto", regular;
     font-size: 16px;
     font-weight: 300;
-    color:  rgba(51, 51, 51, 1.00);
+    color:  var(--text-color);
+    background-color: var(--bg-color);
     text-align: justify;
     line-height: 1.4em;
     font-weight: light;
@@ -28,11 +53,11 @@ b {
 
 a, a:visited {
     text-decoration: none;
-    color: rgba(48,63,159, 1.00);
+    color: var(--second-color);
 }
 
 i, i a {
-    color: #999999;
+    color: var(--third-color);
     font-style: normal;
 }
 
@@ -41,7 +66,7 @@ i, i a {
 }
 
 .org-italic, .org-org-meta-line {
-    color: rgba(48,63,159, 0.75);
+    color: var(--second-color-faded);
     font-style: normal;
 }
 
@@ -73,7 +98,7 @@ div.side-note {
 div.figure {
     font-family: "Roboto Mono", light;
     font-size: 13px;
-    color:  rgba(51, 51, 51, 1.00);
+    color:  var(--text-color);
     text-align: center;
 }
 
@@ -123,14 +148,18 @@ img, video {
 #table-of-contents ul li {
     vertical-align: top;
     display: inline-block; /* block */
-    width: 32%;
+    width: 49%;
 }
+@media only screen and (max-width: 600px) {
+ #table-of-contents ul li {
+     display: block;
+ }
+}
+
 #table-of-contents ul li:before {
     display: inline-block;
     counter-increment: list;
     content: counters(list, ".") ".";
-    width: 2.0em;
-    margin-left: -2.0em;
     text-align: right;
     text-transform: uppercase;
     color:#2255bb;
@@ -143,12 +172,13 @@ img, video {
     line-height: 1.35em;
 }
 #table-of-contents ul li ul li:before {
-    content: ""
+    content: "";
+    margin-left: 1em;
 }
 #table-of-contents h2 {
     font-size: 1em;
     font-weight: 400;
-    padding-top: 4em;
+    padding-top: 1em;
 }
 #table-of-contents h2:before {
     content: "⌘";
@@ -156,11 +186,11 @@ img, video {
 
 
 blockquote {
-    color: #999999;
+    color: var(--third-color);
     padding-top: 0;
     margin-left: 1em;
     padding-left: 1em;
-    border-left: 3px solid #cccccc;
+    border-left: 3px solid var(--border-quote);
 }
 
 ul.org-ul {
@@ -180,7 +210,7 @@ ul.org-ul li p {
 ul.org-ul li::before {
     display: inline-block;
     content: "— ";
-    color: #999999;
+    color: var(--third-color);
     width: 1em;
     margin-left: -1em;
 }
@@ -199,7 +229,7 @@ ol.org-ol {
 
 .org-ol li::before {
     content: counter(li) ". ";
-    color: #999999;
+    color: var(--third-color);
     display: inline-block;
     width: 2em;
     margin-left: -2em;
@@ -213,11 +243,11 @@ ol.org-ol {
 }
 
 #postamble {
-/*    border-top: 1px solid #999999; */
+/*    border-top: 1px solid var(--third-color); */
     padding-top: 1.5em;
 }
 #postamble p, #postamble a {
-    color: #999999;
+    color: var(--third-color);
     line-height: 1.25em;
     margin: 0;
     text-align: right;
@@ -232,7 +262,7 @@ ol.org-ol {
     align-items: center;
     padding: 30px, 10%;
     padding-bottom: 2px;
-    border-bottom: solid black 1px;
+    border-bottom: solid var(--solid) 1px;
 }
 
 .logo {
@@ -264,17 +294,17 @@ ol.org-ol {
 }
 
 .nav_links li a {
-    color:  #000000;
+    color:  var(--solid);
     transition: all 0.15s ease 0s;
 }
 
 .nav_links li a:hover {
-    color: rgba(48,63,159, 0.75);
+    color: var(--second-color-faded);
 }
 
 h1.title {
     font-size: 1.5em;
-    margin-top: 4em;
+    margin-top: 2em;
     margin-bottom: 0em;
     font-weight: 400;
     text-align: left;
@@ -285,19 +315,19 @@ span.subtitle {
     margin-top: .25em;
     font-size: 74.5%;
     font-weight: 300;
-    color: #999999;
+    color: var(--third-color);
 }
 
 
 h3 { padding-top: .5em; }
 h1, h2, h3, h4 {
-    color: black;
+    color: var(--solid);
     font-size: 1em;
     font-weight: 400;
     /* font-variant: all-small-caps; */
     text-transform: uppercase;
 }
-h2 { padding-top: 5em; }
+h2 { padding-top: 1em; }
 h3 { padding-top: 3em; }
 
 body {
@@ -307,7 +337,7 @@ h2 {
   counter-reset: subsection;
 }
 h2::before {
-    color: #cccccc;
+    color: var(--border-quote);
     float: left;
     text-align: right;
     font-weight: 300;
@@ -319,7 +349,7 @@ h2::before {
 
 
 h3::before {
-    color: #cccccc;
+    color: var(--border-quote);
     float: left;
     text-align: right;
     font-weight: 300;
@@ -330,13 +360,13 @@ h3::before {
 }
 
 code {
-    background-color: #f9f9f9;
+    background-color: var(--code-bg);
     font-family: "Roboto Mono", sans-serif;
     font-weight: 400;
 }
 
 pre::before {
-    color: #cccccc;
+    color: var(--border-quote);
     float: left;
     text-align: right;
     font-weight: 300;
@@ -349,8 +379,8 @@ pre.src-lisp::before { content: "lisp"; }
 pre.src-org::before { content: "org"; }
 
 pre {
-    color: #000000;
-    background-color: #fbfbfb;
+    color: var(--solid);
+    background-color: var(--bg-color);
     overflow: auto;
     margin: 0em;
     padding: 0.25em;
@@ -368,9 +398,9 @@ pre.src {
 
 /* --- Code folding --- */
 details {
-    color: rgba(48,63,159, 1.00);
-    background: #fbfbfb;
-    border: 1px solid rgba(48,63,159, 1.00);
+    color: var(--second-color);
+    background: var(--bg-color);
+    border: 1px solid var(--second-color);
     border-radius: 3px;
     padding:  0.25em;
     margin-bottom: 1.0em;
@@ -381,7 +411,7 @@ details pre {
 details pre.src-lisp::before { content: ""; }
 summary {
     outline: 0;
-    color: rgba(48,63,159, 1.00);
+    color: var(--second-color);
 }
 summary::after {
     font-size: 0.85em;
@@ -401,22 +431,20 @@ table, tbody, td, tr, th, colgroup, thead {
 table {
     margin-top: 1em;
 }
-thead {
-    border-bottom: 1px dashed black;
-}
 th {
     text-align: left;
     font-weight: 400;
     padding: 0;
     margin-bottom: 0.25em;
     padding-bottom: 0.25em;
+    border-bottom: 1px dashed var(--solid);
 }
 td { padding: 0; }
 
-tr:nth-child(even) {background: #f9f9f9;}
-tr:nth-child(odd) {background: #ffffff;}
+tr:nth-child(even) {background: var(--code-bg);}
+tr:nth-child(odd) {background: var(--extreme);}
 tbody {
-/* border-bottom: 1px solid black; */
+/* border-bottom: 1px solid var(--solid); */
 }
 
 /* --- Description list --- */
@@ -429,8 +457,67 @@ dd {
 div.back a {
     float: right;
     font-weight: 300;
-    color: #cccccc;
+    color: var(--border-quote);
     font-variant: small-caps;
     margin-top: -2.5em;
 }
-/* h2 { border-bottom: .5px solid #999999; } */
+/* h2 { border-bottom: .5px solid var(--third-color); } */
+
+/*Simple css to style it like a toggle switch*/
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+
+  em {
+    margin-left: 10px;
+    font-size: 1rem;
+  }
+}
+.theme-switch {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
+
+.theme-switch input {
+  display:none;
+}
+
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+}
+
+.slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: .4s;
+  width: 26px;
+}
+
+input:checked + .slider {
+  background-color: #66bb6a;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
