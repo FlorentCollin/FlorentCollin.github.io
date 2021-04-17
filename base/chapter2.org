@@ -1,0 +1,10 @@
+#+TITLE: Second blog post
+#+AUTHOR: Florent Collin
+
+#+SUBTITLE: Florent Collin - April 2021
+#+OPTIONS: html-style:nil num:nil ^:nil
+#+OPTIONS: toc:2 num:nil html-postamble:nil html-style:nil ^:nil
+* First chapter
+** First section
+
+Go check the first blog post [[file:chapter1.org][Chapter 1]]

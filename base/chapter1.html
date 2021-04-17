@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-04-10 Sat 15:52 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blog post test</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Florent Collin" />
+<link rel="stylesheet" href="style.css">
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:e95b018ef3580986a04669f1b5879592219e2a7a&dn=public-domain.txt Public Domain
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Blog post test
+<br />
+<span class="subtitle">Florent Collin - April 2021</span>
+</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org18fa163">First Chapter</a>
+<ul>
+<li><a href="#orga2076f5">First section</a></li>
+<li><a href="#org6c1edfe">Code example</a></li>
+</ul>
+</li>
+<li><a href="#org5b920f6">Second chapter</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org18fa163" class="outline-2">
+<h2 id="org18fa163">First Chapter</h2>
+<div class="outline-text-2" id="text-org18fa163">
+<p>
+<b>Lorem ipsum dolor</b> sit amet, consectetur adipiscing elit. Mauris blandit <b>orci</b> <code>libero</code>, ut <i>rutrum</i> metus dictum id. Duis suscipit magna sed nisl malesuada, sed fermentum ante posuere. Aliquam quis feugiat massa. Aenean fermentum massa ligula, in sagittis ante ultricies sit amet. Quisque fringilla eu purus a placerat. Sed gravida orci semper, iaculis nunc non, vehicula tellus. Morbi in ornare lacus.
+</p>
+</div>
+
+<div id="outline-container-orga2076f5" class="outline-3">
+<h3 id="orga2076f5">First section</h3>
+<div class="outline-text-3" id="text-orga2076f5">
+<p>
+Quisque cursus lacinia orci id feugiat. Ut porttitor nisl sapien, sed accumsan dolor accumsan vel. Phasellus dapibus ante quis leo tempus lobortis. Phasellus tincidunt purus mi, a dictum ante vulputate eu. In ultrices aliquam tincidunt. Mauris vehicula interdum odio, non convallis lorem porttitor vitae. Curabitur enim urna, sagittis non dapibus at, hendrerit id urna. Cras maximus justo eu lorem tincidunt, nec placerat velit auctor. Donec sed blandit felis.
+</p>
+
+
+<div id="org4a314d8" class="figure">
+<p><video controls="true"><source src="chapter1/test-video.mp4" type="video/mp4"/>Your browser does not support the video tag.</video>
+</p>
+<p><span class="figure-number">Figure 1: </span>Testing a Godot Engine demo</p>
+</div>
+
+<p>
+Duis cursus urna justo, eget tempor urna volutpat at. Maecenas a vulputate sem. Nunc commodo id quam vitae convallis. Aenean id faucibus ante. Vivamus ac mi et tortor aliquet dapibus nec nec sapien. Suspendisse cursus tortor sed urna finibus, et placerat eros pellentesque. Donec dapibus fermentum ipsum sit amet ornare. Sed porttitor risus quis tortor volutpat imperdiet. Curabitur id nulla odio. Fusce quis enim viverra, tincidunt tellus quis, hendrerit arcu. Curabitur id sollicitudin dui. Duis ornare condimentum neque. Vestibulum porttitor placerat blandit. Morbi eget pharetra arcu.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org6c1edfe" class="outline-3">
+<h3 id="org6c1edfe">Code example</h3>
+<div class="outline-text-3" id="text-org6c1edfe">
+<div class="org-src-container">
+<pre class="src src-python">import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.figure()
+xs = list(range(11))
+ys = [x**2 for x in xs]
+
+ax = sns.lineplot(x=xs, y=ys)
+ax.set_title(<span style="color: #FFAB91;">"X^2"</span>)
+ax.set_xlabel(<span style="color: #FFAB91;">"x"</span>)
+ax.set_ylabel(<span style="color: #FFAB91;">"y"</span>)
+
+filename = <span style="color: #FFAB91;">"chapter1/line.png"</span>
+plt.savefig(filename)
+plt.close()
+
+return filename
+</pre>
+</div>
+
+
+<div id="org64fd658" class="figure">
+<p><img src="chapter1/line.png" alt="line.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc953d44" class="outline-4">
+<h4 id="orgc953d44">Subsection ?</h4>
+<div class="outline-text-4" id="text-orgc953d44">
+<p>
+Integer hendrerit, odio vel blandit viverra, ante dui pretium magna, in aliquet nunc urna ut magna. Sed eleifend imperdiet turpis quis scelerisque. Nulla varius condimentum pulvinar. Aliquam molestie vitae ex at consectetur. Fusce tempus ac nibh id ornare. Integer auctor bibendum fringilla. Nunc malesuada justo sit amet scelerisque viverra. Aenean sagittis ullamcorper magna, sit amet dictum velit finibus ornare. Nunc sollicitudin, libero ac pellentesque elementum, eros arcu congue nunc, sit amet ullamcorper dolor lacus id turpis. Maecenas ac consequat lectus, sed facilisis felis.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5b920f6" class="outline-2">
+<h2 id="org5b920f6">Second chapter</h2>
+<div class="outline-text-2" id="text-org5b920f6">
+<p>
+This is a quote.
+</p>
+<blockquote>
+<p>
+It is easier to act yourself into a new way of thinking, than it is to think yourself into a new way of acting. - Millard Fuller
+</p>
+</blockquote>
+
+
+<p>
+And we can include tables
+</p>
+<table id="orgf98d38d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 1:</span> Valeurs des paramètres pour les 3 SFs</caption>
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>Paramètre</b></th>
+<th scope="col" class="org-right"><b>Valeur</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">MSF_MAX_NUMCELLS</td>
+<td class="org-right">100</td>
+</tr>
+
+<tr>
+<td class="org-left">MSF_LIM_NUMCELLSUSED_HIGH</td>
+<td class="org-right">0.75</td>
+</tr>
+
+<tr>
+<td class="org-left">MSF_LIM_NUMCELLSUSED_LOW</td>
+<td class="org-right">0.25</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">OTF_THRESHOLD</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-left">OTF_HOUSEKEEPING_PERIOD</td>
+<td class="org-right">1.0</td>
+</tr>
+
+<tr>
+<td class="org-left">OTF_TRAFFIC_SMOOTHING</td>
+<td class="org-right">0.4</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">EOTF_THRESHOLD</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-left">EOTF_HOUSEKEEPING_PERIOD</td>
+<td class="org-right">1.0</td>
+</tr>
+
+<tr>
+<td class="org-left">EOTF_TRAFFIC_SMOOTHING</td>
+<td class="org-right">0.4</td>
+</tr>
+
+<tr>
+<td class="org-left">B (bonus de congestion)</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-left">&alpha;</td>
+<td class="org-right">0.20</td>
+</tr>
+
+<tr>
+<td class="org-left">&beta;</td>
+<td class="org-right">0.80</td>
+</tr>
+</tbody>
+</table>
+
+
+<div id="org5b7b1b6" class="figure">
+<p><img src="chapter1/test.gif" alt="test.gif" />
+</p>
+<p><span class="figure-number">Figure 3: </span>We can also include gif</p>
+</div>
+
+
+<p>
+And reference other blog post entries <a href="chapter2.html">Other blog post entry</a></p>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+#+TITLE: Florent Collin - Index
+
+- [[file:chapter1.org][[10-04-10] First blog post]]
+- [[file:chapter2.org][[10-04-10] Second blog post]]
