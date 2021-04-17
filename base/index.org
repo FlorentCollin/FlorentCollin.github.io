@@ -10,7 +10,7 @@ I'm a student developer at UMons with a back-end experience, I am currently focu
 I'm also interested in classical AI and there applications in games.
 For my master degree, I'm working on a analysis of scheduling functions for Low-Power and Lossy Networks.
 
-Currently searching for an internship, so feel free to [[mailto:florentcollin@gmail.com][reach me !]]
+Currently searching for an internship, so feel free to [[mailto:florentcollinpro@gmail.com][reach me !]]
 #+end_quote
 
 ** Work Experience
