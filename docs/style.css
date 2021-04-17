@@ -147,6 +147,7 @@ img, video {
 }
 #table-of-contents ul li {
     vertical-align: top;
+    text-align: left;
     display: inline-block; /* block */
     width: 49%;
 }
@@ -172,7 +173,7 @@ img, video {
     line-height: 1.35em;
 }
 #table-of-contents ul li ul li:before {
-    content: "";
+    content: "-";
     margin-left: 1em;
 }
 #table-of-contents h2 {
