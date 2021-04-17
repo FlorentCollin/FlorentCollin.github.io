@@ -4,6 +4,7 @@
 #+SUBTITLE: Florent Collin - April 2021
 #+OPTIONS: html-style:nil num:nil ^:nil
 #+OPTIONS: toc:2 num:nil html-postamble:nil html-style:nil ^:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css" />
 * First Chapter
 *Lorem ipsum dolor* sit amet, consectetur adipiscing elit. Mauris blandit *orci* =libero=, ut /rutrum/ metus dictum id. Duis suscipit magna sed nisl malesuada, sed fermentum ante posuere. Aliquam quis feugiat massa. Aenean fermentum massa ligula, in sagittis ante ultricies sit amet. Quisque fringilla eu purus a placerat. Sed gravida orci semper, iaculis nunc non, vehicula tellus. Morbi in ornare lacus.
 

@@ -1,0 +1,496 @@
+/*
+ * Cascading stylesheet for GNU Emacs org mode
+ * Nicolas P. Rougier - September 2020
+ * Released under a Creative Commons CC-BY 4.0 licence
+ * Modified by Florent Collin - April 2021
+ */
+
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500'); 
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300,600'); 
+
+:root {
+    --bg-color: #fbfbfb;
+    --code-bg: #f9f9f9;
+    --text-color: rgba(51, 51, 51, 1.00);
+    --second-color: rgba(48,63,159, 1.00);
+    --second-color-faded: rgba(48,63,159, 0.75);
+    --third-color: #999999;
+    --border-quote: #cccccc;
+    --solid: black;
+    --extreme: white;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --code-bg: #f9f9f9;
+    --text-color: #eee;
+    --second-color: rgba(48,63,159, 1.00);
+    --second-color-faded: rgba(48,63,159, 0.75);
+    --third-color: #999999;
+    --border-quote: #cccccc;
+    --solid: white;
+    --extreme: #9999;
+}
+
+body {
+    font-family: "Roboto", regular;
+    font-size: 16px;
+    font-weight: 300;
+    color:  var(--text-color);
+    background-color: var(--bg-color);
+    text-align: justify;
+    line-height: 1.4em;
+    font-weight: light;
+    counter-reset: section;
+    counter-reset: toc-section;
+    counter-increment: toc-section;
+}
+
+b {
+    font-weight: 500;
+}
+
+a, a:visited {
+    text-decoration: none;
+    color: var(--second-color);
+}
+
+i, i a {
+    color: var(--third-color);
+    font-style: normal;
+}
+
+.org-bold {
+    font-weight: 400;
+}
+
+.org-italic, .org-org-meta-line {
+    color: var(--second-color-faded);
+    font-style: normal;
+}
+
+.org-face-salient {
+    font-weight: 400;
+}
+
+/* Blinking cursor when strike-through */
+.custom { animation: blinker 1s linear infinite; }
+@keyframes blinker { 50% { opacity: 0; } }
+
+
+/* --- Side notes --- */
+div.side-note::before {
+    content: "Note";
+    color: rgba(0,0,0,.75);
+    font-weight: 400;
+}
+div.side-note {
+    color: rgba(0,0,0,.5);
+    float: left;
+    font-size: .85em;
+    line-height: 1.25em;
+    margin-left: -24em;
+    width: 20em;
+}
+
+/* --- Figures --- */
+div.figure {
+    font-family: "Roboto Mono", light;
+    font-size: 13px;
+    color:  var(--text-color);
+    text-align: center;
+}
+
+.figure-number, .table-number, .listing-number {
+    font-weight: 500;
+}
+
+img, video {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+}
+
+.org-svg {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+}
+
+/* --- Table of contents --- */
+#table-of-contents {
+    padding-top: 0em;
+    margin-top: 0em;
+    text-transform: uppercase;
+}
+#table-of-contents ul {
+    padding: 0;
+    font-weight: 400;
+    list-style: none;
+    counter-reset: list 0;
+}
+#table-of-contents ul ul {
+    padding-left:0em;
+    font-weight: 300;
+    font-size: 90%;
+    line-height: 1.5em;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+#table-of-contents h2:before {
+    content: "";
+    counter-reset: section;
+}
+#table-of-contents ul li {
+    vertical-align: top;
+    text-align: left;
+    display: inline-block; /* block */
+    width: 49%;
+}
+@media only screen and (max-width: 600px) {
+ #table-of-contents ul li {
+     display: block;
+ }
+}
+
+#table-of-contents ul li:before {
+    display: inline-block;
+    counter-increment: list;
+    content: counters(list, ".") ".";
+    text-align: right;
+    text-transform: uppercase;
+    color:#2255bb;
+}
+#table-of-contents ul li ul,
+#table-of-contents ul li ul li {
+    display: static;
+    width: 100%;
+    padding-left: 0;
+    line-height: 1.35em;
+}
+#table-of-contents ul li ul li:before {
+    content: "-";
+    margin-left: 1em;
+}
+#table-of-contents h2 {
+    font-size: 1em;
+    font-weight: 400;
+    padding-top: 1em;
+}
+#table-of-contents h2:before {
+    content: "⌘";
+}
+
+
+blockquote {
+    color: var(--third-color);
+    padding-top: 0;
+    margin-left: 1em;
+    padding-left: 1em;
+    border-left: 3px solid var(--border-quote);
+}
+
+ul.org-ul {
+    padding-left: 0
+}
+ul.org-ul li  {
+    list-style-type: none;
+    margin-bottom: .5em;
+    list-style-type: disc;
+    list-style-position: inside;
+}
+
+ul.org-ul li p {
+    display: inline-block;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+ol.org-ol {
+    padding-left: 0;
+    margin-left: 2em;
+    list-style: none;
+    counter-reset: li;
+}
+
+.org-ol li  {
+    counter-increment: li;
+    margin-bottom: .25em;
+}
+
+.org-ol li::before {
+    content: counter(li) ". ";
+    color: var(--third-color);
+    display: inline-block;
+    width: 2em;
+    margin-left: -2em;
+}
+
+#content, #preamble, #postamble {
+    margin: 0 auto;
+    max-width: 720px;
+    margin-top: 2.5%;
+    margin-bottom: 2.5%;
+}
+
+#postamble {
+/*    border-top: 1px solid var(--third-color); */
+    padding-top: 1.5em;
+}
+#postamble p, #postamble a {
+    color: var(--third-color);
+    line-height: 1.25em;
+    margin: 0;
+    text-align: right;
+}
+
+#preamble {
+    font-family: "Roboto Mono", regular;
+    font-size: 18px;
+    font-weight: 400;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px, 10%;
+    padding-bottom: 2px;
+    border-bottom: solid var(--solid) 1px;
+}
+
+.logo {
+    font-size: 20px
+    font-weight: 600;
+}
+
+#preamble ul {
+    display: flex-end;
+}
+#navigation ul
+{
+    margin: 0;
+    padding: 0;
+}
+
+.nav_links {
+    list-style: none;
+    display: inline;
+}
+
+.nav_links li:not(:first-child):before {
+    content: " | ";
+}
+
+.nav_links li {
+    display: inline-block;
+    padding: 0px; 20px;
+}
+
+.nav_links li a {
+    color:  var(--solid);
+    transition: all 0.15s ease 0s;
+}
+
+.nav_links li a:hover {
+    color: var(--second-color-faded);
+}
+
+h1.title {
+    font-size: 1.5em;
+    margin-top: 2em;
+    margin-bottom: 0em;
+    font-weight: 400;
+    text-align: left;
+}
+
+span.subtitle {
+    display: inline-block;
+    margin-top: .25em;
+    font-size: 74.5%;
+    font-weight: 300;
+    color: var(--third-color);
+}
+
+
+h3 { padding-top: .5em; }
+h1, h2, h3, h4 {
+    color: var(--solid);
+    font-size: 1em;
+    font-weight: 400;
+    /* font-variant: all-small-caps; */
+    text-transform: uppercase;
+}
+h2 { padding-top: 1em; }
+h3 { padding-top: 3em; }
+
+body {
+  counter-reset: section;
+}
+h2 {
+  counter-reset: subsection;
+}
+
+code {
+    background-color: var(--code-bg);
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 400;
+}
+
+pre::before {
+    color: var(--border-quote);
+    float: left;
+    text-align: right;
+    font-weight: 300;
+    width: 3.0em;
+    margin-left: -4.25em;
+    font-variant: small-caps;
+    content: "";
+}
+pre.src-lisp::before { content: "lisp"; }
+pre.src-org::before { content: "org"; }
+
+pre {
+    color: var(--solid);
+    background-color: var(--bg-color);
+    overflow: auto;
+    margin: 0em;
+    padding: 0.25em;
+    padding-left: 0.5em;
+    line-height: 1.35em;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    border-left: 2px dotted #00008b;
+}
+pre.src {
+    position: relative;
+    overflow: visible;
+}
+
+/* --- Code folding --- */
+details {
+    color: var(--second-color);
+    background: var(--bg-color);
+    border: 1px solid var(--second-color);
+    border-radius: 3px;
+    padding:  0.25em;
+    margin-bottom: 1.0em;
+}
+details pre {
+    border: 0;
+}
+details pre.src-lisp::before { content: ""; }
+summary {
+    outline: 0;
+    color: var(--second-color);
+}
+summary::after {
+    font-size: 0.85em;
+    color: rgba(48,63,159, 0.25);
+    display: inline-block;
+    float: right;
+    content: "Click to fold/unfold";
+    padding-right:  0.5em;
+}
+
+/* --- Table --- */
+table { min-width: 100%; }
+table, tbody, td, tr, th, colgroup, thead {
+    border: 0;
+/*    padding: 0;*/
+}
+table {
+    margin-top: 1em;
+}
+th {
+    text-align: left;
+    font-weight: 400;
+    padding: 0;
+    margin-bottom: 0.25em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px dashed var(--solid);
+}
+td { padding: 0; }
+
+tr:nth-child(even) {background: var(--code-bg);}
+tr:nth-child(odd) {background: var(--extreme);}
+tbody {
+/* border-bottom: 1px solid var(--solid); */
+}
+
+/* --- Description list --- */
+dd {
+    margin-top: 0.25em;
+    margin-bottom: 0.50em;
+}
+
+/* --- Back links in header --- */
+div.back a {
+    float: right;
+    font-weight: 300;
+    color: var(--border-quote);
+    font-variant: small-caps;
+    margin-top: -2.5em;
+}
+/* h2 { border-bottom: .5px solid var(--third-color); } */
+
+/*Simple css to style it like a toggle switch*/
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+
+  em {
+    margin-left: 10px;
+    font-size: 1rem;
+  }
+}
+.theme-switch {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
+
+.theme-switch input {
+  display:none;
+}
+
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+}
+
+.slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: .4s;
+  width: 26px;
+}
+
+input:checked + .slider {
+  background-color: #66bb6a;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

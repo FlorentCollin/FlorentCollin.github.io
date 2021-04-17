@@ -1,0 +1,27 @@
+#+TITLE: Posts - WIP
+#+SUBTITLE: This is a Working In Progress page where I'm going to list blog post links
+#+AUTHOR: Florent Collin
+#+OPTIONS: toc:nil num:nil html-postamble:nil html-style:nil ^:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="about.css" />
+
+#+begin_src python :results raw :exports results
+import glob
+import os
+
+def format_entry(file):
+    with open(file) as f:
+        title_line = f.readline().strip()
+        assert(title_line[:8] == '#+TITLE:')
+        title = title_line[9:]
+        return f'- [[file:{file}][{title}]]'
+
+blog_entries_files = glob.glob('*.org')
+to_remove = ['index.org', 'posts.org']
+blog_entries = [format_entry(file)
+                for file in blog_entries_files if file not in to_remove]
+return '\n'.join(blog_entries)
+#+end_src
+
+#+RESULTS:
+- [[file:chapter2.org][Second blog post]]
+- [[file:chapter1.org][Blog post test]]
