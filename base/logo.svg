@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="53.035774mm"
+   height="6.2434134mm"
+   viewBox="0 0 53.035774 6.2434134"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="43.759854"
+     inkscape:cy="7.2527729"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1055"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-73.061099,-121.53321)">
+    <g
+       id="g945"
+       transform="matrix(1.3753986,0,0,1.3753986,-27.427032,-47.967163)">
+      <text
+         xml:space="preserve"
+         style="font-size:4.23333px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono, Normal';fill:#303fa9;fill-opacity:1;stroke-width:0.264583"
+         x="76.345024"
+         y="126.89906"
+         id="text835"><tspan
+           sodipodi:role="line"
+           id="tspan833"
+           x="76.345024"
+           y="126.89906"
+           style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono Medium';fill:#303fa9;fill-opacity:1;stroke-width:0.264583">FLORENT COLLIN</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:4.93819px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono, Normal';stroke-width:0.308637"
+         x="88.291924"
+         y="109.17403"
+         id="text839"
+         transform="scale(0.85726261,1.1665037)"><tspan
+           sodipodi:role="line"
+           id="tspan837"
+           x="88.291924"
+           y="109.17403"
+           style="stroke-width:0.308637">_</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:4.23333px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono, Normal';stroke-width:0.264583"
+         x="72.726234"
+         y="126.73473"
+         id="text843"><tspan
+           sodipodi:role="line"
+           id="tspan841"
+           x="72.726234"
+           y="126.73473"
+           style="stroke-width:0.264583">$</tspan></text>
+    </g>
+  </g>
+</svg>

@@ -257,12 +257,7 @@ ol.org-ol {
     align-items: center;
     padding: 30px, 10%;
     padding-bottom: 2px;
-    border-bottom: solid var(--solid) 1px;
-}
-
-.logo {
-    font-size: 20px
-    font-weight: 600;
+    border-bottom: solid var(--solid) 2px;
 }
 
 #preamble ul {
