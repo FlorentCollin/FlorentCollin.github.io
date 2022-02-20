@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cave Generator Built Using the Bevy Game Engine | Florent Collin</title>
+  <link rel="stylesheet" href="assets/css/post.css" />
+  <script defer src="assets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="assets/css/common.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="">Florent Collin</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">Cave Generator Built Using the Bevy Game Engine</h2>
+          <small class="date">Sun Feb 20, 2022</small>
+          <div class="tags">
+            
+            <a href="tags/Bevy" class="tag">Bevy</a>
+            
+          </div>
+        </div>
+        <div class="content"><p>As you might already know, Bevy is a relatively new game engine written in Rust using a Data Driven approach. This blog post is an introduction to Bevy showing how to build a Cave Generator based on a cellular automaton. Even if you are not familiar with cellular automata, you probably already have heard about the Game of Life of John Conway.</p>
+<p>All the code used in this tutorial is available on <a href="https://github.com/FlorentCollin/cave-generation-bevy/">GitHub</a>, feel free to clone and play with it.</p>
+<h1 id="what-we-are-going-to-build">What we are going to build</h1>
+<p><img src="cave-generator-final.gif#center" alt="Cave Generator">
+Like said in the introduction, we are going to build a simple cave generator based on the principle of cellular automata. Particularly we are going to use a simple 2D grid to represent the cave. Each part of the grid, is named a cell. A cell can be in one of the following two states: <em>Alive</em> or <em>Dead</em>. An alive cell is colored in white whereas a dead cell is colored in black. The following image shows the 2D grid composed of cells where their states were randomly generated.</p>
+<p><img src="grid-random.jpg#center" alt="Grid of random cells"></p>
+<h1 id="new-bevy-project">New bevy project</h1>
+<p>Before starting to implement the generator, we must add the following dependencies to our project. In this tutorial we use Bevy 0.6 (which is the latest version at the time this blog is written).</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml"><span style="color:#8a93a5;font-style:italic"># In Cargo.toml</span>
+<span style="color:#abb2bf">[</span><span style="color:#aa89ea">dependencies</span><span style="color:#abb2bf">]</span>
+<span style="color:#aa89ea">bevy</span> <span style="color:#abb2bf">=</span> <span style="color:#63c381">&#34;0.6.0&#34;</span>
+<span style="color:#aa89ea">rand</span> <span style="color:#abb2bf">=</span> <span style="color:#63c381">&#34;0.8.4&#34;</span>
+</code></pre></div><h1 id="drawing-our-first-window">Drawing our first window</h1>
+<p>The first thing each Bevy project does is to create an App and a window in which we will render the cave. The following block of code does just that.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">use</span> <span style="color:#aa89ea">bevy</span>::<span style="color:#aa89ea">prelude</span>::<span style="color:#54b1c7">*</span><span style="color:#abb2bf">;</span>
+
+<span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">main</span><span style="color:#abb2bf">()</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">App</span>::<span style="color:#aa89ea">new</span><span style="color:#abb2bf">()</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_plugins</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">DefaultPlugins</span><span style="color:#abb2bf">)</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">run</span><span style="color:#abb2bf">();</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>The <code>add_plugins(DefaultPlugins)</code> insert a bunch of plugins that handle windows, inputs, assets, and so on. A plugin in Bevy is just a bundle adding systems to the App. As we will se in the next section, we can code our own plugins to bundle some functionalities.</p>
+<h1 id="lets-draw-a-square">Let&rsquo;s draw a square</h1>
+<p>An empty window is not so useful to look at, so let&rsquo;s draw a square in the middle which will serve as the basis to draw the grid of cells later on.</p>
+<p>The grid is composed of cells that we represent by a white square if the cell is alive and by a black square otherwise.
+In order not to obfuscate the main function, we create a new Plugin named <code>CaveGeneratorPlugin</code>. This plugin will contain all the necessary code to initialize our cave generator.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">main</span><span style="color:#abb2bf">()</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">App</span>::<span style="color:#aa89ea">new</span><span style="color:#abb2bf">()</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_plugins</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">DefaultPlugins</span><span style="color:#abb2bf">)</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_plugin</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">CaveGeneratorPlugin</span><span style="color:#abb2bf">)</span> <span style="color:#8a93a5;font-style:italic">// &lt;--- new
+</span><span style="color:#8a93a5;font-style:italic"></span>        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">run</span><span style="color:#abb2bf">();</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#76a9f9">struct</span> <span style="color:#ca72ff">CaveGeneratorPlugin</span><span style="color:#abb2bf">;</span>
+
+<span style="color:#76a9f9">impl</span> <span style="color:#aa89ea">Plugin</span> <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">CaveGeneratorPlugin</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">build</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">self</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">app</span>: <span style="color:#76a9f9">&amp;</span><span style="color:#ca72ff">mut</span> <span style="color:#aa89ea">App</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#8a93a5;font-style:italic">// Note: spawn_cell and setup_camera are defined in the next code block
+</span><span style="color:#8a93a5;font-style:italic"></span>        <span style="color:#aa89ea">app</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_startup_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">spawn_cell</span><span style="color:#abb2bf">)</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_startup_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">setup_camera</span><span style="color:#abb2bf">);</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>This creates a new plugin that we can add in the main function. This plugin add two startup system. A <em>startup system</em> is a function run only once when the application is launched. In contrary, Bevy has also the notion of <em>systems</em> which are functions run each frame. These systems contains the core logic of our application and will allow us to update the state of our cells.
+The startup systems <code>spawn_cell</code> and <code>setup_camera</code> are just simple functions.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">setup_camera</span><span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">commands</span>: <span style="color:#ca72ff">Commands</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#8a93a5;font-style:italic">// Spawning a camera is necessary to view the square
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#aa89ea">commands</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">spawn_bundle</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">OrthographicCameraBundle</span>::<span style="color:#aa89ea">new_2d</span><span style="color:#abb2bf">());</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">spawn_cell</span><span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">commands</span>: <span style="color:#ca72ff">Commands</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">commands</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">spawn_bundle</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">SpriteBundle</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">sprite</span>: <span style="color:#ca72ff">Sprite</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">color</span>: <span style="color:#ca72ff">Color</span>::<span style="color:#aa89ea">WHITE</span><span style="color:#abb2bf">,</span>
+            <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+        <span style="color:#abb2bf">},</span>
+        <span style="color:#aa89ea">transform</span>: <span style="color:#ca72ff">Transform</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">scale</span>: <span style="color:#ca72ff">Vec3</span>::<span style="color:#aa89ea">new</span><span style="color:#abb2bf">(</span><span style="color:#d19a66">40.0</span><span style="color:#abb2bf">,</span> <span style="color:#d19a66">40.0</span><span style="color:#abb2bf">,</span> <span style="color:#d19a66">1.0</span><span style="color:#abb2bf">),</span>
+            <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+        <span style="color:#abb2bf">},</span>
+        <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+    <span style="color:#abb2bf">});</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>These two functions take as an argument a <code>Commands</code> which enables us to spawn entities and bundle (which themselves are a bunch of entities). Entities are the base of the Bevy Entity Component System. The <code>SpriteBundle</code> spawn a white square of size 40.0x40.0. The <code>z</code> component of the vector is set to 1.0 but it could have be set to any value since it doesn&rsquo;t matter in 2D.</p>
+<p><img src="square.jpg" alt="Single square in the center of the window"></p>
+<h1 id="introducing-the-cells-state-and-modifying-the-sprite-color">Introducing the cell&rsquo;s state and modifying the sprite color</h1>
+<p>Spawning a single square in the middle of the window is already a great start but it doesn&rsquo;t have any state associated with it. As a reminder, a cell can be either alive or dead. Therefore each square must have a state associated with it and must be able to change the state of each cell separately.</p>
+<p>To implement the cell state we create a new <code>Component</code> named <code>CellState</code> containing the state of a cell. Moreover the <em>Default</em> trait is also implemented and allow us to generate a new cell with a random state easily.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">use</span> <span style="color:#aa89ea">rand</span>::<span style="color:#aa89ea">random</span><span style="color:#abb2bf">;</span>
+
+<span style="color:#76a9f9">impl</span> <span style="color:#aa89ea">Plugin</span> <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">CaveGeneratorPlugin</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">build</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">self</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">app</span>: <span style="color:#76a9f9">&amp;</span><span style="color:#ca72ff">mut</span> <span style="color:#aa89ea">App</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">app</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_startup_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">spawn_cell</span><span style="color:#abb2bf">)</span> <span style="color:#8a93a5;font-style:italic">// &lt;--- new
+</span><span style="color:#8a93a5;font-style:italic"></span>            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_startup_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">setup_camera</span><span style="color:#abb2bf">);</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#8a93a5;font-style:italic">#[derive(Component)]</span>
+<span style="color:#76a9f9">struct</span> <span style="color:#ca72ff">CellState</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">alive</span>: <span style="color:#e5c07b">bool</span><span style="color:#abb2bf">,</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#76a9f9">impl</span> <span style="color:#e5c07b">Default</span> <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">CellState</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">default</span><span style="color:#abb2bf">()</span> -&gt; <span style="color:#ca72ff">Self</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">CellState</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">alive</span>: <span style="color:#ca72ff">random</span>::<span style="color:#54b1c7">&lt;</span><span style="color:#e5c07b">bool</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">(),</span> <span style="color:#8a93a5;font-style:italic">// The `rand` crate should be added to the dependencies
+</span><span style="color:#8a93a5;font-style:italic"></span>        <span style="color:#abb2bf">}</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>Now that we have the code to generate a new cell&rsquo;s state we can associate it with the square by simply inserting it. From now on, a <code>CellState</code> is linked to our single square.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">spawn_cell</span><span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">commands</span>: <span style="color:#ca72ff">Commands</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">commands</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">spawn_bundle</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">SpriteBundle</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">sprite</span>: <span style="color:#ca72ff">Sprite</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#aa89ea">color</span>: <span style="color:#ca72ff">Color</span>::<span style="color:#aa89ea">WHITE</span><span style="color:#abb2bf">,</span>
+                <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+            <span style="color:#abb2bf">},</span>
+            <span style="color:#aa89ea">transform</span>: <span style="color:#ca72ff">Transform</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#aa89ea">scale</span>: <span style="color:#ca72ff">Vec3</span>::<span style="color:#aa89ea">new</span><span style="color:#abb2bf">(</span><span style="color:#d19a66">40.0</span><span style="color:#abb2bf">,</span> <span style="color:#d19a66">40.0</span><span style="color:#abb2bf">,</span> <span style="color:#d19a66">40.0</span><span style="color:#abb2bf">),</span>
+                <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+            <span style="color:#abb2bf">},</span>
+            <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+        <span style="color:#abb2bf">})</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">insert</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">CellState</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">());</span> <span style="color:#8a93a5;font-style:italic">// &lt;--- new
+</span><span style="color:#8a93a5;font-style:italic"></span><span style="color:#abb2bf">}</span>
+
+</code></pre></div><p>As said earlier, we want to display a cell in white if the cell is alive and in black otherwise. As Bevy use a ECS, it means that we can query the entities and do some manipulations with them. To change the color of a cell, we introduce a system named <code>change_colors</code> which is executed at each frame.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">impl</span> <span style="color:#aa89ea">Plugin</span> <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">CaveGeneratorPlugin</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">build</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">self</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">app</span>: <span style="color:#76a9f9">&amp;</span><span style="color:#ca72ff">mut</span> <span style="color:#aa89ea">App</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">app</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_startup_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">spawn_cell</span><span style="color:#abb2bf">)</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_startup_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">setup_camera</span><span style="color:#abb2bf">)</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">add_system</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">change_colors</span><span style="color:#abb2bf">);</span> <span style="color:#8a93a5;font-style:italic">// &lt;--- new
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#8a93a5;font-style:italic">//                               this query is for entities
+</span><span style="color:#8a93a5;font-style:italic">//                               with a Sprite and CellState     Filter for the query to only run on modified
+</span><span style="color:#8a93a5;font-style:italic">//                             ↓ components.                   ↓ entities with a CellState component
+</span><span style="color:#8a93a5;font-style:italic"></span><span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">change_colors</span><span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">q</span>: <span style="color:#ca72ff">Query</span><span style="color:#54b1c7">&lt;</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">Sprite</span><span style="color:#abb2bf">,</span> <span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">CellState</span><span style="color:#abb2bf">),</span> <span style="color:#aa89ea">Changed</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">CellState</span><span style="color:#54b1c7">&gt;&gt;</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#8a93a5;font-style:italic">//                              |       |
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#8a93a5;font-style:italic">//       +----------------------+       |
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#8a93a5;font-style:italic">//       |       +----------------------+ 
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#8a93a5;font-style:italic">//       v       v
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#76a9f9">for</span> <span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">sprite</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">)</span> <span style="color:#76a9f9">in</span> <span style="color:#aa89ea">q</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">iter_mut</span><span style="color:#abb2bf">()</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">sprite</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">color</span> <span style="color:#54b1c7">=</span> <span style="color:#76a9f9">if</span> <span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">alive</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">Color</span>::<span style="color:#aa89ea">WHITE</span>
+        <span style="color:#abb2bf">}</span> <span style="color:#76a9f9">else</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">Color</span>::<span style="color:#aa89ea">BLACK</span>
+        <span style="color:#abb2bf">}</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>At first this function might be a bit overwhelming. So, let&rsquo;s break it down.</p>
+<p>The system <code>change_colors</code> is a simple function taking a single argument <code>q</code> which is of type <code>Query</code>. A query in Bevy allows us to request some entities to the ECS. Here, we query the ECS and ask for all <code>Sprite</code> that also have a <code>CellState</code> component associated with them. On those entities, we only want the <code>CellState</code> that have changed. Therefore, a changed <code>CellState</code> is a state that was previously alive (respectively dead) and that is now dead (respectively alive). The system in itself is quite simple. The sprite&rsquo;s color of each changed cell&rsquo;s state is modified to be black or white depending on the cell&rsquo;s state.</p>
+<p>By restarting the application, you should now see a black square or a white square depending on the random boolean generated.</p>
+<h1 id="drawing-the-grid-of-cells">Drawing the grid of cells</h1>
+<p>Now that the application display a single cell, the next step is to display the grid of cells that will represent the cave.
+Each cell has a 2D position in the grid. This position is just a simple component composed of two <code>i32</code> representing the x and the y coordinates. This component is then added to the cell entity.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#8a93a5;font-style:italic">#[derive(Component)]</span>
+<span style="color:#76a9f9">struct</span> <span style="color:#ca72ff">Position</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">x</span>: <span style="color:#e5c07b">i32</span><span style="color:#abb2bf">,</span>
+    <span style="color:#aa89ea">y</span>: <span style="color:#e5c07b">i32</span><span style="color:#abb2bf">,</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#8a93a5;font-style:italic">//                                                         NEW
+</span><span style="color:#8a93a5;font-style:italic">//                                                         vvvvvvvvv
+</span><span style="color:#8a93a5;font-style:italic"></span><span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">spawn_cell</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">commands</span>: <span style="color:#76a9f9">&amp;</span><span style="color:#ca72ff">mut</span> <span style="color:#aa89ea">Commands</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">position</span>: <span style="color:#ca72ff">Position</span><span style="color:#abb2bf">)</span> -&gt; <span style="color:#ca72ff">Entity</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">commands</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">spawn_bundle</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">SpriteBundle</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#aa89ea">sprite</span>: <span style="color:#ca72ff">Sprite</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#aa89ea">color</span>: <span style="color:#ca72ff">Color</span>::<span style="color:#aa89ea">WHITE</span><span style="color:#abb2bf">,</span>
+                <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+            <span style="color:#abb2bf">},</span>
+            <span style="color:#aa89ea">transform</span>: <span style="color:#ca72ff">Transform</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#aa89ea">scale</span>: <span style="color:#ca72ff">Vec3</span>::<span style="color:#aa89ea">new</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">CELL_SIZE</span> <span style="color:#54b1c7">*</span> <span style="color:#d19a66">0.8</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">CELL_SIZE</span> <span style="color:#54b1c7">*</span> <span style="color:#d19a66">0.8</span><span style="color:#abb2bf">,</span> <span style="color:#d19a66">1.0</span><span style="color:#abb2bf">),</span>
+                <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+            <span style="color:#abb2bf">},</span>
+            <span style="color:#54b1c7">..</span><span style="color:#e5c07b">Default</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">()</span>
+        <span style="color:#abb2bf">})</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">insert</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">CellState</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">())</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">insert</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">position</span><span style="color:#abb2bf">)</span>
+        <span style="color:#abb2bf">.</span><span style="color:#aa89ea">id</span><span style="color:#abb2bf">()</span> <span style="color:#8a93a5;font-style:italic">// &lt;--- new
+</span><span style="color:#8a93a5;font-style:italic"></span><span style="color:#abb2bf">}</span>
+</code></pre></div><p>The grid itself is a single vector of entities of length <code>CAVE_WIDTH * CAVE_HEIGHT</code> where <code>CAVE_WIDTH</code> and <code>CAVE_HEIGHT</code> are two constants that we define. To retrieve the entity at position (x, y) we can just take the element in the vector at the index <code>y * CAVE_WIDTH + x</code>. This list of entities is what enable us later to retrieve the neighbors cells needed to simulate a step in the cellular automaton.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">const</span> <span style="color:#aa89ea">CAVE_WIDTH</span>: <span style="color:#e5c07b">i32</span> <span style="color:#54b1c7">=</span> <span style="color:#d19a66">50</span><span style="color:#abb2bf">;</span>
+<span style="color:#76a9f9">const</span> <span style="color:#aa89ea">CAVE_HEIGHT</span>: <span style="color:#e5c07b">i32</span> <span style="color:#54b1c7">=</span> <span style="color:#d19a66">50</span><span style="color:#abb2bf">;</span>
+
+<span style="color:#76a9f9">struct</span> <span style="color:#ca72ff">Grid</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#aa89ea">cells</span>: <span style="color:#e5c07b">Vec</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">Entity</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">,</span>
+<span style="color:#abb2bf">}</span>
+
+<span style="color:#76a9f9">impl</span> <span style="color:#aa89ea">Grid</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#76a9f9">pub</span> <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">new</span><span style="color:#abb2bf">()</span> -&gt; <span style="color:#ca72ff">Self</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">Self</span> <span style="color:#abb2bf">{</span> <span style="color:#aa89ea">cells</span>: <span style="color:#ca72ff">vec</span><span style="color:#54b1c7">!</span><span style="color:#abb2bf">[]</span> <span style="color:#abb2bf">}</span>
+    <span style="color:#abb2bf">}</span>
+
+    <span style="color:#76a9f9">pub</span> <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">spawn_cells</span><span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">commands</span>: <span style="color:#ca72ff">Commands</span><span style="color:#abb2bf">,</span> <span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">grid</span>: <span style="color:#ca72ff">ResMut</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">Grid</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">i</span> <span style="color:#76a9f9">in</span> <span style="color:#d19a66">0</span><span style="color:#54b1c7">..</span><span style="color:#aa89ea">CAVE_WIDTH</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">j</span> <span style="color:#76a9f9">in</span> <span style="color:#d19a66">0</span><span style="color:#54b1c7">..</span><span style="color:#aa89ea">CAVE_HEIGHT</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#76a9f9">let</span> <span style="color:#aa89ea">entity</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">spawn_cell</span><span style="color:#abb2bf">(</span>
+                    <span style="color:#54b1c7">&amp;</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">commands</span><span style="color:#abb2bf">,</span>
+                    <span style="color:#aa89ea">Position</span> <span style="color:#abb2bf">{</span>
+                        <span style="color:#aa89ea">x</span>: <span style="color:#ca72ff">i</span><span style="color:#abb2bf">,</span>
+                        <span style="color:#aa89ea">y</span>: <span style="color:#ca72ff">j</span><span style="color:#abb2bf">,</span>
+                    <span style="color:#abb2bf">},</span>
+                <span style="color:#abb2bf">);</span>
+                <span style="color:#aa89ea">grid</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">cells</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">push</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">entity</span><span style="color:#abb2bf">);</span>
+            <span style="color:#abb2bf">}</span>
+        <span style="color:#abb2bf">}</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>Don&rsquo;t forget to add the new startup system in the cave generator plugin defined earlier (<code>add_startup_system(Grid::spawn_cells)</code>)</p>
+<p>We now have a grid of cells but even if we gave them a position, we never utilize this position to position each cell in the window.
+A new system is therefore needed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">const</span> <span style="color:#aa89ea">CELL_SIZE</span>: <span style="color:#e5c07b">f32</span> <span style="color:#54b1c7">=</span> <span style="color:#d19a66">10.0</span><span style="color:#abb2bf">;</span>
+
+<span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">move_cell</span><span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">q</span>: <span style="color:#ca72ff">Query</span><span style="color:#54b1c7">&lt;</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">Position</span><span style="color:#abb2bf">,</span> <span style="color:#54b1c7">&amp;</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">Transform</span><span style="color:#abb2bf">)</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#76a9f9">for</span> <span style="color:#abb2bf">(</span><span style="color:#aa89ea">position</span><span style="color:#abb2bf">,</span> <span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">transform</span><span style="color:#abb2bf">)</span> <span style="color:#76a9f9">in</span> <span style="color:#aa89ea">q</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">iter_mut</span><span style="color:#abb2bf">()</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#aa89ea">transform</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">translation</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">Vec3</span>::<span style="color:#aa89ea">new</span><span style="color:#abb2bf">(</span>
+            <span style="color:#aa89ea">position</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">x</span> <span style="color:#76a9f9">as</span> <span style="color:#e5c07b">f32</span> <span style="color:#54b1c7">*</span> <span style="color:#aa89ea">CELL_SIZE</span> <span style="color:#54b1c7">-</span> <span style="color:#abb2bf">(</span><span style="color:#aa89ea">CAVE_WIDTH</span> <span style="color:#76a9f9">as</span> <span style="color:#e5c07b">f32</span> <span style="color:#54b1c7">/</span> <span style="color:#d19a66">2.0</span><span style="color:#abb2bf">)</span> <span style="color:#54b1c7">*</span> <span style="color:#aa89ea">CELL_SIZE</span><span style="color:#abb2bf">,</span>
+            <span style="color:#aa89ea">position</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">y</span> <span style="color:#76a9f9">as</span> <span style="color:#e5c07b">f32</span> <span style="color:#54b1c7">*</span> <span style="color:#aa89ea">CELL_SIZE</span> <span style="color:#54b1c7">-</span> <span style="color:#abb2bf">(</span><span style="color:#aa89ea">CAVE_HEIGHT</span> <span style="color:#76a9f9">as</span> <span style="color:#e5c07b">f32</span> <span style="color:#54b1c7">/</span> <span style="color:#d19a66">2.0</span><span style="color:#abb2bf">)</span> <span style="color:#54b1c7">*</span> <span style="color:#aa89ea">CELL_SIZE</span><span style="color:#abb2bf">,</span>
+            <span style="color:#d19a66">0.0</span><span style="color:#abb2bf">);</span>
+    <span style="color:#abb2bf">}</span>
+
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>This <code>move_cell</code> system queries each <code>Position</code> component and translate the entity to the correct position inside the window.
+After adding this system to the cave generator plugin, you should see a grid of randomly generated cells.</p>
+<p><img src="grid.jpg" alt="Grid of cells"></p>
+<h1 id="simulation">Simulation</h1>
+<p>The last step is to add the simulation system that will generate the cave based on the start states of the cells.
+The principle to generate the next step in any cellular automaton is always the same. Each cell individually, count the number of neighbors alive or dead and based on this information, choose to become alive or dead at the next iteration. For a cave generator cellular automaton, we can take this rules:</p>
+<ul>
+<li>If a cell is alive and has more that 3 neighbors also alive then it stays alive otherwise it dies.</li>
+<li>If a cell is dead and has more than 4 neighbors alive then the cell is resurrected otherwise it stays dead.</li>
+</ul>
+<p>To implement the simulation we can simply introduce a new system <code>Grid::update</code> that will run every frame.
+This system starts by collecting the state of every cell in the grid using a specific query. Then for each cell it modifies it state based on the rules defined above.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">impl</span> <span style="color:#aa89ea">Grid</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#8a93a5;font-style:italic">// ... previous methods omitted 
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#76a9f9">pub</span> <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">update</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">grid</span>: <span style="color:#ca72ff">Res</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">Grid</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">,</span> <span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">cells_states_query</span>: <span style="color:#ca72ff">Query</span><span style="color:#54b1c7">&lt;</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">CellState</span><span style="color:#abb2bf">,</span> <span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">Position</span><span style="color:#abb2bf">)</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#8a93a5;font-style:italic">// Collect the state of every cell in the grid.
+</span><span style="color:#8a93a5;font-style:italic"></span>        <span style="color:#76a9f9">let</span> <span style="color:#aa89ea">cells_states</span>: <span style="color:#e5c07b">Vec</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">_</span><span style="color:#54b1c7">&gt;</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">grid</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">cells</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">iter</span><span style="color:#abb2bf">()</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">map</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">|</span><span style="color:#aa89ea">cell_entity</span><span style="color:#54b1c7">|</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#76a9f9">let</span> <span style="color:#abb2bf">(</span><span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">_</span> <span style="color:#abb2bf">)</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">cells_states_query</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">get</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">*</span><span style="color:#aa89ea">cell_entity</span><span style="color:#abb2bf">).</span><span style="color:#aa89ea">unwrap</span><span style="color:#abb2bf">();</span>
+                <span style="color:#aa89ea">cell_state</span>
+            <span style="color:#abb2bf">})</span>
+            <span style="color:#abb2bf">.</span><span style="color:#aa89ea">collect</span><span style="color:#abb2bf">();</span>
+
+        <span style="color:#76a9f9">for</span> <span style="color:#abb2bf">(</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">position</span><span style="color:#abb2bf">)</span> <span style="color:#76a9f9">in</span> <span style="color:#aa89ea">cells_states_query</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">iter_mut</span><span style="color:#abb2bf">()</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#76a9f9">let</span> <span style="color:#aa89ea">neighbors_alive_count</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">grid</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">count_neighbors_alive</span><span style="color:#abb2bf">(</span><span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">cells_states</span><span style="color:#abb2bf">,</span> <span style="color:#aa89ea">position</span><span style="color:#abb2bf">);</span>
+
+            <span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">alive</span> <span style="color:#54b1c7">=</span> <span style="color:#76a9f9">if</span> <span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">alive</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#aa89ea">neighbors_alive_count</span> <span style="color:#54b1c7">&gt;</span> <span style="color:#d19a66">3</span>
+            <span style="color:#abb2bf">}</span> <span style="color:#76a9f9">else</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#aa89ea">neighbors_alive_count</span> <span style="color:#54b1c7">&gt;</span> <span style="color:#d19a66">4</span>
+            <span style="color:#abb2bf">};</span>
+        <span style="color:#abb2bf">}</span>
+    <span style="color:#abb2bf">}</span>
+
+    <span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">count_neighbors_alive</span><span style="color:#abb2bf">(</span>
+        <span style="color:#54b1c7">&amp;</span><span style="color:#aa89ea">self</span><span style="color:#abb2bf">,</span>
+        <span style="color:#aa89ea">cells_states</span>: <span style="color:#76a9f9">&amp;</span><span style="color:#e5c07b">Vec</span><span style="color:#54b1c7">&lt;&amp;</span><span style="color:#aa89ea">CellState</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">,</span>
+        <span style="color:#aa89ea">position</span>: <span style="color:#76a9f9">&amp;</span><span style="color:#ca72ff">Position</span><span style="color:#abb2bf">,</span>
+    <span style="color:#abb2bf">)</span> -&gt; <span style="color:#e5c07b">i32</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#76a9f9">let</span> <span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">neighbors_alive_count</span> <span style="color:#54b1c7">=</span> <span style="color:#d19a66">0</span><span style="color:#abb2bf">;</span>
+        <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">i</span> <span style="color:#76a9f9">in</span> <span style="color:#54b1c7">-</span><span style="color:#d19a66">1</span><span style="color:#54b1c7">..</span><span style="color:#d19a66">2</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#76a9f9">for</span> <span style="color:#aa89ea">j</span> <span style="color:#76a9f9">in</span> <span style="color:#54b1c7">-</span><span style="color:#d19a66">1</span><span style="color:#54b1c7">..</span><span style="color:#d19a66">2</span> <span style="color:#abb2bf">{</span>
+                <span style="color:#76a9f9">if</span> <span style="color:#aa89ea">i</span> <span style="color:#54b1c7">==</span> <span style="color:#d19a66">0</span> <span style="color:#54b1c7">&amp;&amp;</span> <span style="color:#aa89ea">j</span> <span style="color:#54b1c7">==</span> <span style="color:#d19a66">0</span> <span style="color:#abb2bf">{</span>
+                    <span style="color:#76a9f9">continue</span><span style="color:#abb2bf">;</span> <span style="color:#8a93a5;font-style:italic">// avoids counting itself 
+</span><span style="color:#8a93a5;font-style:italic"></span>                <span style="color:#abb2bf">}</span>
+                <span style="color:#76a9f9">let</span> <span style="color:#aa89ea">index</span> <span style="color:#54b1c7">=</span> <span style="color:#abb2bf">(</span><span style="color:#aa89ea">position</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">y</span> <span style="color:#54b1c7">+</span> <span style="color:#aa89ea">j</span><span style="color:#abb2bf">)</span> <span style="color:#54b1c7">*</span> <span style="color:#aa89ea">CAVE_WIDTH</span> <span style="color:#54b1c7">+</span> <span style="color:#abb2bf">(</span><span style="color:#aa89ea">position</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">x</span> <span style="color:#54b1c7">+</span> <span style="color:#aa89ea">i</span><span style="color:#abb2bf">);</span>
+                <span style="color:#76a9f9">if</span> <span style="color:#76a9f9">let</span> <span style="color:#e5c07b">Some</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">)</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">cells_states</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">get</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">index</span> <span style="color:#76a9f9">as</span> <span style="color:#e5c07b">usize</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+                    <span style="color:#76a9f9">if</span> <span style="color:#aa89ea">cell_state</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">alive</span> <span style="color:#abb2bf">{</span>
+                        <span style="color:#aa89ea">neighbors_alive_count</span> <span style="color:#54b1c7">+=</span> <span style="color:#d19a66">1</span><span style="color:#abb2bf">;</span>
+                    <span style="color:#abb2bf">}</span>
+                <span style="color:#abb2bf">}</span>
+            <span style="color:#abb2bf">}</span>
+        <span style="color:#abb2bf">}</span>
+        <span style="color:#aa89ea">neighbors_alive_count</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><p>And voilà, you should now see a generated cave 🎉!</p>
+<p><img src="cave-generator-final.gif#center" alt="Cave Generator"></p>
+<h1 id="finishing-touches">Finishing touches</h1>
+<p>The final touch to make this generator a bit more interesting is to add the possibility to restart a new simulation.
+To this end, we can implement a final system that checks whether the R key has been pressed and restarts the simulation if this is the case.</p>
+<div class="highlight"><pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#76a9f9">fn</span> <span style="color:#00b1f7">restart</span><span style="color:#abb2bf">(</span>
+    <span style="color:#aa89ea">keyboard_input</span>: <span style="color:#ca72ff">Res</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">Input</span><span style="color:#54b1c7">&lt;</span><span style="color:#aa89ea">KeyCode</span><span style="color:#54b1c7">&gt;&gt;</span><span style="color:#abb2bf">,</span>
+    <span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">cell_states_query</span>: <span style="color:#ca72ff">Query</span><span style="color:#54b1c7">&lt;&amp;</span><span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">CellState</span><span style="color:#54b1c7">&gt;</span><span style="color:#abb2bf">,</span>
+<span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+    <span style="color:#8a93a5;font-style:italic">// restart the simulation
+</span><span style="color:#8a93a5;font-style:italic"></span>    <span style="color:#76a9f9">if</span> <span style="color:#aa89ea">keyboard_input</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">pressed</span><span style="color:#abb2bf">(</span><span style="color:#aa89ea">KeyCode</span>::<span style="color:#aa89ea">R</span><span style="color:#abb2bf">)</span> <span style="color:#abb2bf">{</span>
+        <span style="color:#76a9f9">for</span> <span style="color:#76a9f9">mut</span> <span style="color:#aa89ea">cell_state</span> <span style="color:#76a9f9">in</span> <span style="color:#aa89ea">cell_states_query</span><span style="color:#abb2bf">.</span><span style="color:#aa89ea">iter_mut</span><span style="color:#abb2bf">()</span> <span style="color:#abb2bf">{</span>
+            <span style="color:#54b1c7">*</span><span style="color:#aa89ea">cell_state</span> <span style="color:#54b1c7">=</span> <span style="color:#aa89ea">CellState</span>::<span style="color:#aa89ea">default</span><span style="color:#abb2bf">();</span>
+        <span style="color:#abb2bf">}</span>
+    <span style="color:#abb2bf">}</span>
+<span style="color:#abb2bf">}</span>
+</code></pre></div><h1 id="potential-improvements">Potential improvements</h1>
+<p>There is quite a few improvements that can be made to this code source to improve performances or ergonomics of this application:</p>
+<ul>
+<li>Stop the simulation after a number of steps.</li>
+<li>Resize the cells depending on the window size.</li>
+<li>Remove the use of global variables to define the size of the cave and the size of the cell (a struct can be passed to the cave generator plugin for example).</li>
+</ul>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 2022 </p>
+</footer>
+
+    </main>
+  </body>
+</html>
