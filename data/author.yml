@@ -1,0 +1,23 @@
+name: Florent Collin
+dp: https://avatars.githubusercontent.com/u/44946845?v=4
+description: "
+  <p>
+    I'm a student developer at UMons with a back-end experience, I am currently focusing on learning low-level programming, graphics rendering and graphics manipulation. 
+  </p>
+  <br/>
+  <p>
+    I'm also interested in classical AI and there applications in games.
+  </P>
+  <br/>
+  <p>
+    For my master degree, I'm working on an analysis of scheduling functions for Low-Power and Lossy Networks.
+  </P>
+"
+email: florentcollinpro@gmail.com
+contact:
+  - title: github
+    url: https://github.com/FlorentCollin
+  - title: linkedin
+    url: https://www.linkedin.com/in/florent-collin/
+  #- title: email
+    #url: mailto:me@example.com
