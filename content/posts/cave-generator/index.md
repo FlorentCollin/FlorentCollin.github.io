@@ -4,13 +4,13 @@ date: 2022-02-20
 tags: ["Bevy"]
 ---
 
-As you might already know, Bevy is a relatively new game engine written in Rust using a Data Driven approach. This blog post is an introduction to Bevy showing how to build a Cave Generator based on a cellular automaton. Even if you are not familiar with cellular automata, you probably already have heard about the Game of Life of John Conway.
+As you might already know, Bevy is a relatively new game engine written in Rust using a Data Driven approach. This blog post is an introduction to Bevy showing how to build a Cave Generator based on a cellular automaton. Even if you are unfamiliar with cellular automata, you probably already have heard about the Game of Life of John Conway. In order to create a cave generator the principle is exactly the same, only the rules are modified to generate simple caves.
 
-All the code used in this tutorial is available on [GitHub](https://github.com/FlorentCollin/cave-generation-bevy/), feel free to clone and play with it.
+All the code used in this tutorial is available on [GitHub](https://github.com/FlorentCollin/cave-generator-bevy), feel free to clone and play with it.
 
-# What we are going to build
+# Preview
 ![Cave Generator](cave-generator-final.gif#center)
-Like said in the introduction, we are going to build a simple cave generator based on the principle of cellular automata. Particularly we are going to use a simple 2D grid to represent the cave. Each part of the grid, is named a cell. A cell can be in one of the following two states: *Alive* or *Dead*. An alive cell is colored in white whereas a dead cell is colored in black. The following image shows the 2D grid composed of cells where their states were randomly generated.
+Like said in the introduction, we are going to build a simple cave generator based on the principle of cellular automata. Particularly we are going to use a simple 2D grid to represent the cave. Each part of the grid is named a cell. A cell can be in one of the following two states: *Alive* or *Dead*. An alive cell is colored in white whereas a dead cell is colored in black. The following image shows the 2D grid composed of cells where their states were randomly generated.
 
 ![Grid of random cells](grid-random.jpg#center)
 
@@ -22,8 +22,8 @@ Before starting to implement the generator, we must add the following dependenci
 bevy = "0.6.0"
 rand = "0.8.4"
 ```
-# Drawing our first window
-The first thing each Bevy project does is to create an App and a window in which we will render the cave. The following block of code does just that.
+# Drawing Our First Window
+The first thing each Bevy project does is to create a new app and a window in which we will render the cave. The following block of code does just that.
 
 ```rust
 use bevy::prelude::*;
@@ -35,10 +35,10 @@ fn main() {
 }
 ```
 
-The ``add_plugins(DefaultPlugins)`` insert a bunch of plugins that handle windows, inputs, assets, and so on. A plugin in Bevy is just a bundle adding systems to the App. As we will se in the next section, we can code our own plugins to bundle some functionalities.
+The ``add_plugins(DefaultPlugins)`` insert a bunch of plugins that handle windows, inputs, assets, and so on. A plugin in Bevy is just a bundle adding systems to the app. As we will see in the next section, we can code our own plugins and systems to add some functionalities.
 
-# Let's draw a square
-An empty window is not so useful to look at, so let's draw a square in the middle which will serve as the basis to draw the grid of cells later on. 
+# Let's Draw a Square
+An empty window is boring to look at, so let's add some life to it by drawing a square in the middle which will serve as the basis to draw the grid of cells later on.
 
 The grid is composed of cells that we represent by a white square if the cell is alive and by a black square otherwise.
 In order not to obfuscate the main function, we create a new Plugin named ``CaveGeneratorPlugin``. This plugin will contain all the necessary code to initialize our cave generator. 
@@ -61,7 +61,7 @@ impl Plugin for CaveGeneratorPlugin {
     }
 }
 ```
-This creates a new plugin that we can add in the main function. This plugin add two startup system. A *startup system* is a function run only once when the application is launched. In contrary, Bevy has also the notion of *systems* which are functions run each frame. These systems contains the core logic of our application and will allow us to update the state of our cells.
+This creates a new plugin that we can add in the main function. This plugin adds two startup systems. A *startup system* is a function executed only once when the application is launched. In contrary, Bevy also has the notion of *systems* which are functions executed each frame. These systems contain the core logic of our application and will allow us to update the state of our cells.
 The startup systems ``spawn_cell`` and ``setup_camera`` are just simple functions.
 
 ```rust
@@ -84,12 +84,12 @@ fn spawn_cell(mut commands: Commands) {
     });
 }
 ```
-These two functions take as an argument a ``Commands`` which enables us to spawn entities and bundle (which themselves are a bunch of entities). Entities are the base of the Bevy Entity Component System. The ``SpriteBundle`` spawn a white square of size 40.0x40.0. The ``z`` component of the vector is set to 1.0 but it could have be set to any value since it doesn't matter in 2D.
+These two functions take as an argument a ``Commands`` which enables us to spawn entities and bundle (which themselves are a bunch of entities). Entities are the basis of the Bevy Entity Component System. The ``SpriteBundle`` spawns a white square of size 40.0x40.0 pixels. The ``z``-component of the vector is set to 1.0 but it could have been set to any value since it doesn't matter in 2D.
 
 ![Single square in the center of the window](square.jpg)
 
-# Introducing the cell's state and modifying the sprite color
-Spawning a single square in the middle of the window is already a great start but it doesn't have any state associated with it. As a reminder, a cell can be either alive or dead. Therefore each square must have a state associated with it and must be able to change the state of each cell separately.
+# Introducing the Cell's State and Modifying the Sprite Color
+Spawning a single square in the middle of the window is already a great start but it doesn't have any state associated with it. As a reminder, a cell can be either alive or dead. Therefore each square must have a state associated with it and we must be able to change the state of each cell separately.
 
 To implement the cell state we create a new ``Component`` named ``CellState`` containing the state of a cell. Moreover the *Default* trait is also implemented and allow us to generate a new cell with a random state easily.
 ```rust
@@ -136,7 +136,7 @@ fn spawn_cell(mut commands: Commands) {
 
 ```
 
-As said earlier, we want to display a cell in white if the cell is alive and in black otherwise. As Bevy use a ECS, it means that we can query the entities and do some manipulations with them. To change the color of a cell, we introduce a system named ``change_colors`` which is executed at each frame.
+As said earlier, we want to display a cell in white if the cell is alive and in black otherwise. As Bevy uses an ECS, it means that we can query the entities and do some manipulations with them. To change the color of a cell, we introduce a system named ``change_colors`` which is executed at each frame.
 ```rust
 impl Plugin for CaveGeneratorPlugin {
     fn build(&self, app: &mut App) {
@@ -170,7 +170,7 @@ The system ``change_colors`` is a simple function taking a single argument ``q``
 
 By restarting the application, you should now see a black square or a white square depending on the random boolean generated.
 
-# Drawing the grid of cells
+# Drawing the Grid of Cells
 
 Now that the application display a single cell, the next step is to display the grid of cells that will represent the cave.
 Each cell has a 2D position in the grid. This position is just a simple component composed of two ``i32`` representing the x and the y coordinates. This component is then added to the cell entity.
@@ -201,11 +201,20 @@ fn spawn_cell(commands: &mut Commands, position: Position) -> Entity {
         .id() // <--- new
 }
 ```
-The grid itself is a single vector of entities of length ``CAVE_WIDTH * CAVE_HEIGHT`` where ``CAVE_WIDTH`` and ``CAVE_HEIGHT`` are two constants that we define. To retrieve the entity at position (x, y) we can just take the element in the vector at the index ``y * CAVE_WIDTH + x``. This list of entities is what enable us later to retrieve the neighbors cells needed to simulate a step in the cellular automaton.
+The grid itself is a single vector of entities of length ``CAVE_WIDTH * CAVE_HEIGHT`` where ``CAVE_WIDTH`` and ``CAVE_HEIGHT`` are two constants that we define. To retrieve the entity at position (x, y) we can just take the element in the vector at the index ``y * CAVE_WIDTH + x``. This list of entities is what enables us later to retrieve the neighbor’s cells needed to simulate a step in the cellular automaton.
 
 ```rust
 const CAVE_WIDTH: i32 = 50;
 const CAVE_HEIGHT: i32 = 50;
+
+impl Plugin for CaveGeneratorPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(Grid::new()) // <--- new
+            .add_startup_system(Grid::spawn_cells) // <--- new
+            .add_startup_system(setup_camera)
+            .add_system(change_colors)
+    }
+}
 
 struct Grid {
     cells: Vec<Entity>,
@@ -250,17 +259,17 @@ fn move_cell(mut q: Query<(&Position, &mut Transform)>) {
 }
 ```
 
-This ``move_cell`` system queries each ``Position`` component and translate the entity to the correct position inside the window.
+This ``move_cell`` system queries each ``Position`` component and translates the entity to the correct position inside the window.
 After adding this system to the cave generator plugin, you should see a grid of randomly generated cells.
 
 ![Grid of cells](grid.jpg)
 
 # Simulation
 The last step is to add the simulation system that will generate the cave based on the start states of the cells.
-The principle to generate the next step in any cellular automaton is always the same. Each cell individually, count the number of neighbors alive or dead and based on this information, choose to become alive or dead at the next iteration. For a cave generator cellular automaton, we can take this rules:
+The principle to generate the next step in any cellular automaton is always the same. Each cell individually, count the number of neighbors alive or dead and based on this information, choose to become alive or dead at the next iteration. For a cave generator cellular automaton, we can take these rules:
 
-- If a cell is alive and has more that 3 neighbors also alive then it stays alive otherwise it dies.
-- If a cell is dead and has more than 4 neighbors alive then the cell is resurrected otherwise it stays dead.
+- If a cell is alive and has more than 3 neighbors also alive, then it stays alive otherwise it dies.
+- If a cell is dead and has more than 4 neighbors alive, then the cell is resurrected otherwise it stays dead.
 
 To implement the simulation we can simply introduce a new system ``Grid::update`` that will run every frame.
 This system starts by collecting the state of every cell in the grid using a specific query. Then for each cell it modifies it state based on the rules defined above.
@@ -317,7 +326,7 @@ And voilà, you should now see a generated cave 🎉!
 ![Cave Generator](cave-generator-final.gif#center)
 
 # Finishing touches
-The final touch to make this generator a bit more interesting is to add the possibility to restart a new simulation.
+The final touch to make this generator a bit more interesting is to add the possibility to restart the simulation.
 To this end, we can implement a final system that checks whether the R key has been pressed and restarts the simulation if this is the case.
 ```rust
 fn restart(
